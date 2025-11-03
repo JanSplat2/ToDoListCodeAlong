@@ -8,19 +8,25 @@
 import SwiftUI
 
 struct TodoDetailView: View {
-    var item: TodoItem
+    @Bindable var item: TodoItem
+    
     var body: some View {
-        Form{
-            @Bindable var item = item
-            
-            TextField("Task Name", text: $item.title)
+        Form {
+            TextField("Title", text: $item.title)
             
             Toggle("Completed", isOn: $item.isCompleted)
+            
+            Picker("Priority", selection: $item.priority) {
+                ForEach(Priority.allCases) { level in
+                    Text(level.rawValue)
+                        .tag(level)
+                }
+            }
         }
-        .padding()
-        .navigationTitle(item.title)
+        .navigationTitle("Task Details")
     }
 }
+
 
 #Preview {
     @Previewable @State var mockItem = TodoItem(title: "Preview",isCompleted: false)

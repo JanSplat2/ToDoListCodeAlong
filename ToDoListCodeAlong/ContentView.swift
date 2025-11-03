@@ -10,26 +10,44 @@ import SwiftUI
 struct ContentView: View {
     @Environment(TodoListManager.self) var manager
     var body: some View {
-        
-        NavigationStack{
-            List {
-                ForEach(manager.items, id: \.id) { item in
-                    NavigationLink{
-                        TodoDetailView(item: item)
-                    } label: {
-                        HStack{
-                            Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
-                            Text(item.title)
-                                .strikethrough(item.isCompleted, pattern: .solid)
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 8) {
+                // MARK: - Task Counters
+                HStack(spacing: 20) {
+                    Text("Total: \(manager.items.count)")
+                    Text("Completed: \(manager.items.filter { $0.isCompleted }.count)")
+                    Text("Incomplete: \(manager.items.filter { !$0.isCompleted }.count)")
+                }
+                .font(.headline)
+                .padding(.horizontal)
+                
+                // MARK: - List
+                List {
+                    ForEach(manager.items, id: \.id) { item in
+                        NavigationLink {
+                            TodoDetailView(item: item)
+                        } label: {
+                            HStack {
+                                
+                                Circle()
+                                    .fill(item.priority.color)
+                                    .frame(width: 12, height: 12)
+                                
+                                
+                                Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                                
+                                Text(item.title)
+                                    .strikethrough(item.isCompleted)
+                            }
                         }
                     }
+                    .onDelete(perform: manager.deleteItem)
                 }
-                .onDelete(perform: manager.deleteItem)
             }
             .navigationTitle(Text("To-Do List"))
             .toolbar {
                 EditButton()
-                Button("Add"){
+                Button("Add") {
                     manager.addItem(title: "New Item")
                 }
             }
