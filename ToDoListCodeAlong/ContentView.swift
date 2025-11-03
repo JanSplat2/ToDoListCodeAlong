@@ -8,17 +8,37 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(TodoListManager.self) var manager
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        
+        NavigationStack{
+            List {
+                ForEach(manager.items, id: \.id) { item in
+                    NavigationLink{
+                        TodoDetailView(item: item)
+                    } label: {
+                        HStack{
+                            Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                            Text(item.title)
+                                .strikethrough(item.isCompleted, pattern: .solid)
+                        }
+                    }
+                }
+                .onDelete(perform: manager.deleteItem)
+            }
+            .navigationTitle(Text("To-Do List"))
+            .toolbar {
+                EditButton()
+                Button("Add"){
+                    manager.addItem(title: "New Item")
+                }
+            }
         }
-        .padding()
     }
 }
 
 #Preview {
+    @Previewable @State var MockManager = TodoListManager()
     ContentView()
+        .environment(MockManager)
 }
